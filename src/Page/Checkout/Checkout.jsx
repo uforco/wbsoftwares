@@ -8,35 +8,46 @@ import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
   let navigate = useNavigate();
-  const [qty, setQty] = useState(1);
+  const [deleteRefetch, setDeleteRefetch] = useState(true);
   const [fetching, setFetching] = useState(true);
   const [courses, setCourses] = useState([]);
 
+// Data Fetching with courses by sort to cart items
   useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const fetchCourses = async () => {
+      if(courses.length < 1){
+        setFetching(true);
+      }
       try {
         const response = await fetch("https://itder.com/api/get-course-list");
         const data = await response.json();
-        setFetching(false);
-        const sortArr = data?.courseData?.filter((item) => {
-          item.course_qty = 1;
-          return cartItems.some((cartItem) => cartItem.id === item.id);
+        const sortArr = await data?.courseData?.filter((item) => {
+          return cartItems.some((cartItem) => {
+            if(cartItem.id === item.id){
+              item.course_qty = Number(cartItem?.course_qty)
+              return true
+            }else{
+              return false
+            }
+          })
         });
         setCourses(sortArr);
+        setFetching(false);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setFetching(false);
       }
     };
     fetchCourses();
-  }, []);
+  }, [courses.length, deleteRefetch]);
 
+
+// purchase process system
   const submitHeandler = async (e) => {
     e.preventDefault();
     let formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-
     const newData = {
       course_id: courses[0]?.id,
       admission_date: new Date().toISOString(),
@@ -403,8 +414,7 @@ const Checkout = () => {
                         <CardTbody
                           key={course.id}
                           data={course}
-                          setQty={setQty}
-                          qty={qty}
+                          setDeleteRefetch={setDeleteRefetch}
                         />
                       ))}
                     </tbody>
@@ -415,6 +425,8 @@ const Checkout = () => {
                     <div className=" border-t-4 border-l-4 border-[#06284a] w-12 h-12 rounded-full animate-spin "></div>
                   </div>
                 )}
+
+
               </div>
 
               <div className="lg:w-[41%] bg-white border-2 ">
@@ -425,12 +437,7 @@ const Checkout = () => {
                   <div className="py-3 flex justify-between border-b border-gray-300">
                     <p className="text-black font-bold">Total Price</p>
                     <p className="text-black font-bold">
-                      {courses.reduce((privValue, currValue) => {
-                        return (
-                          privValue +
-                          currValue.discount_price * currValue.course_qty
-                        );
-                      }, 0)}
+                      {/* {totalPric} */}
                     </p>
                   </div>
 

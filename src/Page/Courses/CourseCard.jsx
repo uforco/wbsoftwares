@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import discountPricesFunc from "../../Utils/discountPricesFunc/discountPricesFunc";
+import discountPricesFunc from "../../Utils/PricesFunc/discountPricesFunc";
 import { toast } from "react-toastify";
 
 const CourseCard = ({ course }) => {

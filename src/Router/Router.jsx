@@ -7,7 +7,7 @@ import User_List from "../Admin_Dashboard/User_List/User_List";
 import User_Role from "../Admin_Dashboard/User_Role/User_Role";
 import Cart from "../Page/Cart/Cart";
 // import OrderDetails from "../Page/OrderDetails/OrderDetails";
-// import Checkout from "../Page/Checkout/Checkout";
+import Checkout from "../Page/Checkout/Checkout";
 import Search from "../Page/Search/Search";
 
 
@@ -25,10 +25,10 @@ const Router = createBrowserRouter([
                 path: '/cart',
                 element: <Cart></Cart>
             },
-            // {
-            //     path: '/cart/checkout',
-            //     element: <Checkout />
-            // },
+            {
+                path: '/cart/checkout',
+                element: <Checkout />
+            },
             {
                 path: '/search',
                 element: <Search />
