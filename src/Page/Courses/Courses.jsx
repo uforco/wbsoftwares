@@ -21,8 +21,6 @@ const Courses = () => {
     fetchCourses();
   }, []);
 
-  console.log(courses[0]);
-
   if (fetching) {
     return (
       <div className="flex justify-center items-center h-screen">

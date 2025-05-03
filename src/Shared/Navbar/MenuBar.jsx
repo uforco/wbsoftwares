@@ -6,7 +6,8 @@ import logo from '../../assets/Logo/Logo.png'
 import { HiUserGroup } from "react-icons/hi2";
 import { MdContactPage } from "react-icons/md";
 import { MdLibraryBooks } from "react-icons/md";
-import { FaImages, FaUserAlt, FaVideo } from "react-icons/fa";
+// import { FaImages, FaUserAlt, FaVideo } from "react-icons/fa";
+import { FaUserAlt } from "react-icons/fa";
 import { IoSettingsSharp } from "react-icons/io5";
 import useHasAccess from "../../Hooks/useHasAccess";
 import { OrderContext } from "../../ContextAPIs/OrderProvider";
@@ -68,7 +69,7 @@ const MenuBar = () => {
                   </span>
                 </Link>
               </li>
-              <li className={` px-pt_8px my-mt_4px hover:cursor-pointer hover:rounded-rounded_primary hover: duration-200  ${selected === '/checkout' ? 'bg-bg_selected rounded-rounded_primary text-white hover:text-white font-medium hover:bg-bg_selected' : 'text-[#585c66] font-medium hover:text-[#585c66] hover:bg-slate-100 '}`}
+              {/* <li className={` px-pt_8px my-mt_4px hover:cursor-pointer hover:rounded-rounded_primary hover: duration-200  ${selected === '/checkout' ? 'bg-bg_selected rounded-rounded_primary text-white hover:text-white font-medium hover:bg-bg_selected' : 'text-[#585c66] font-medium hover:text-[#585c66] hover:bg-slate-100 '}`}
                 onClick={() => handleClick('/checkout')}>
                 <Link to='/checkout' className="flex items-center gap-gap_6px py-pt_primary">
                   <span className="bg-bg_selected text-white p-pl_primary rounded-rounded_primary text-text_md">
@@ -78,9 +79,9 @@ const MenuBar = () => {
                   Checkout
                   </span>
                 </Link>
-              </li>
+              </li> */}
             
-              <li className={` px-pt_8px my-mt_4px hover:cursor-pointer hover:rounded-rounded_primary hover: duration-200   ${selected === '/order-details' ? 'bg-bg_selected rounded-rounded_primary text-white hover:text-white font-medium hover:bg-bg_selected ' : 'text-[#585c66] font-medium hover:text-[#585c66] hover:bg-slate-100 '}`}
+              {/* <li className={` px-pt_8px my-mt_4px hover:cursor-pointer hover:rounded-rounded_primary hover: duration-200   ${selected === '/order-details' ? 'bg-bg_selected rounded-rounded_primary text-white hover:text-white font-medium hover:bg-bg_selected ' : 'text-[#585c66] font-medium hover:text-[#585c66] hover:bg-slate-100 '}`}
                 onClick={() => handleClick('/order-details')}>
                 <Link to='/order-details' className="flex items-center  gap-gap_6px py-pt_primary">
                   <span className="bg-bg_selected text-white p-pl_primary rounded-rounded_primary text-text_md">
@@ -90,7 +91,7 @@ const MenuBar = () => {
                    Order Details
                   </span>
                 </Link>
-              </li>
+              </li> */}
               <li className={` px-pt_8px my-mt_4px hover:cursor-pointer hover:rounded-rounded_primary hover: duration-200   ${selected === '/search' ? 'bg-bg_selected rounded-rounded_primary text-white hover:text-white font-medium hover:bg-bg_selected ' : 'text-[#585c66] font-medium hover:text-[#585c66] hover:bg-slate-100 '}`}
                 onClick={() => handleClick('/search')}>
                 <Link to='/search' className="flex items-center  gap-gap_6px py-pt_primary">

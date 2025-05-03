@@ -35,6 +35,15 @@ const CourseCard = ({ course }) => {
       cartItems.push({ ...course, course_qty: 1 });
     }
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    toast.success("Add to Cart new Course ", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
   };
 
   return (
