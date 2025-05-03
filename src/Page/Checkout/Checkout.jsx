@@ -8,35 +8,45 @@ import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
   let navigate = useNavigate();
-  const [qty, setQty] = useState(1);
+  const [deleteRefetch, setDeleteRefetch] = useState(true);
   const [fetching, setFetching] = useState(true);
   const [courses, setCourses] = useState([]);
 
+  // Data Fetching with courses by sort to cart items
   useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const fetchCourses = async () => {
+      if (courses.length < 1) {
+        setFetching(true);
+      }
       try {
         const response = await fetch("https://itder.com/api/get-course-list");
         const data = await response.json();
-        setFetching(false);
-        const sortArr = data?.courseData?.filter((item) => {
-          item.course_qty = 1;
-          return cartItems.some((cartItem) => cartItem.id === item.id);
+        const sortArr = await data?.courseData?.filter((item) => {
+          return cartItems.some((cartItem) => {
+            if (cartItem.id === item.id) {
+              item.course_qty = Number(cartItem?.course_qty);
+              return true;
+            } else {
+              return false;
+            }
+          });
         });
         setCourses(sortArr);
+        setFetching(false);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setFetching(false);
       }
     };
     fetchCourses();
-  }, []);
+  }, [courses.length, deleteRefetch]);
 
+  // purchase process system
   const submitHeandler = async (e) => {
     e.preventDefault();
     let formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-
     const newData = {
       course_id: courses[0]?.id,
       admission_date: new Date().toISOString(),
@@ -62,6 +72,7 @@ const Checkout = () => {
       discount_course_fee: Number(courses[0]?.discount_price),
       sub_total_course_fee: courses[0]?.discount_price * data?.course_qty,
     };
+
     let newformData = new FormData();
     for (const key in newData) {
       if (key === "photo" && newData[key] instanceof File) {
@@ -70,14 +81,16 @@ const Checkout = () => {
         newformData.append(key, newData[key]?.toString() ?? "");
       }
     }
+
     const response = await fetch("https://itder.com/api/course-purchase", {
       method: "POST",
       body: newformData,
     });
     const result = await response.json();
 
-    if (result?.status === 201) {
-      toast.success(result?.message, {
+    // navigate and reset Form system
+    if (result?.status_code != 201) {
+      toast.warning(result?.message, {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -86,21 +99,31 @@ const Checkout = () => {
         draggable: true,
         progress: undefined,
       });
-
-      const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
-      const updatedCartItems = cartItems.filter(
-        (item) => item.id !== courses[0]?.id
-      );
-      localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
-      newformData = new FormData();
-      formData = new FormData();
-      navigate(
-        `/search?phone=${result?.coursePurchaseData?.phone_no}&orderid=${result?.coursePurchaseData?.form_no}`
-      );
-      e.target.reset();
       return;
     }
-    // navigate(`/search?phone=${"01998769191"}&orderid=${"2346346"}`);
+
+    toast.success(result?.message, {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+
+    const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+    const updatedCartItems = cartItems.filter(
+      (item) => item.id != result?.coursePurchaseData?.course_id
+    );
+    localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
+    newformData = new FormData();
+    formData = new FormData();
+    e.target.reset();
+
+    navigate(
+      `/search?phone=${result?.coursePurchaseData?.phone_no}&orderid=${result?.coursePurchaseData?.form_no}`
+    );
   };
 
   return (
@@ -403,8 +426,7 @@ const Checkout = () => {
                         <CardTbody
                           key={course.id}
                           data={course}
-                          setQty={setQty}
-                          qty={qty}
+                          setDeleteRefetch={setDeleteRefetch}
                         />
                       ))}
                     </tbody>
@@ -424,21 +446,14 @@ const Checkout = () => {
                   </h2>
                   <div className="py-3 flex justify-between border-b border-gray-300">
                     <p className="text-black font-bold">Total Price</p>
-                    <p className="text-black font-bold">
-                      {courses.reduce((privValue, currValue) => {
-                        return (
-                          privValue +
-                          currValue.discount_price * currValue.course_qty
-                        );
-                      }, 0)}
-                    </p>
+                    <p className="text-black font-bold">{/* {totalPric} */}</p>
                   </div>
 
                   <button
                     type="submit"
                     className="font-medium text-black mb-2 border-2 hover:bg-[#D2C5A2] duration-300 py-2 px-4  block text-center mx-auto w-full"
                   >
-                    Submit
+                    Purchase The Courses
                   </button>
                 </div>
               </div>
