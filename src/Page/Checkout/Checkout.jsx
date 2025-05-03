@@ -12,11 +12,11 @@ const Checkout = () => {
   const [fetching, setFetching] = useState(true);
   const [courses, setCourses] = useState([]);
 
-// Data Fetching with courses by sort to cart items
+  // Data Fetching with courses by sort to cart items
   useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const fetchCourses = async () => {
-      if(courses.length < 1){
+      if (courses.length < 1) {
         setFetching(true);
       }
       try {
@@ -24,13 +24,13 @@ const Checkout = () => {
         const data = await response.json();
         const sortArr = await data?.courseData?.filter((item) => {
           return cartItems.some((cartItem) => {
-            if(cartItem.id === item.id){
-              item.course_qty = Number(cartItem?.course_qty)
-              return true
-            }else{
-              return false
+            if (cartItem.id === item.id) {
+              item.course_qty = Number(cartItem?.course_qty);
+              return true;
+            } else {
+              return false;
             }
-          })
+          });
         });
         setCourses(sortArr);
         setFetching(false);
@@ -42,8 +42,7 @@ const Checkout = () => {
     fetchCourses();
   }, [courses.length, deleteRefetch]);
 
-
-// purchase process system
+  // purchase process system
   const submitHeandler = async (e) => {
     e.preventDefault();
     let formData = new FormData(e.target);
@@ -73,6 +72,7 @@ const Checkout = () => {
       discount_course_fee: Number(courses[0]?.discount_price),
       sub_total_course_fee: courses[0]?.discount_price * data?.course_qty,
     };
+
     let newformData = new FormData();
     for (const key in newData) {
       if (key === "photo" && newData[key] instanceof File) {
@@ -81,14 +81,16 @@ const Checkout = () => {
         newformData.append(key, newData[key]?.toString() ?? "");
       }
     }
+
     const response = await fetch("https://itder.com/api/course-purchase", {
       method: "POST",
       body: newformData,
     });
     const result = await response.json();
 
-    if (result?.status === 201) {
-      toast.success(result?.message, {
+    // navigate and reset Form system
+    if (result?.status_code != 201) {
+      toast.warning(result?.message, {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -97,21 +99,31 @@ const Checkout = () => {
         draggable: true,
         progress: undefined,
       });
-
-      const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
-      const updatedCartItems = cartItems.filter(
-        (item) => item.id !== courses[0]?.id
-      );
-      localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
-      newformData = new FormData();
-      formData = new FormData();
-      navigate(
-        `/search?phone=${result?.coursePurchaseData?.phone_no}&orderid=${result?.coursePurchaseData?.form_no}`
-      );
-      e.target.reset();
       return;
     }
-    // navigate(`/search?phone=${"01998769191"}&orderid=${"2346346"}`);
+
+    toast.success(result?.message, {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+
+    const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+    const updatedCartItems = cartItems.filter(
+      (item) => item.id != result?.coursePurchaseData?.course_id
+    );
+    localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
+    newformData = new FormData();
+    formData = new FormData();
+    e.target.reset();
+
+    navigate(
+      `/search?phone=${result?.coursePurchaseData?.phone_no}&orderid=${result?.coursePurchaseData?.form_no}`
+    );
   };
 
   return (
@@ -425,8 +437,6 @@ const Checkout = () => {
                     <div className=" border-t-4 border-l-4 border-[#06284a] w-12 h-12 rounded-full animate-spin "></div>
                   </div>
                 )}
-
-
               </div>
 
               <div className="lg:w-[41%] bg-white border-2 ">
@@ -436,16 +446,14 @@ const Checkout = () => {
                   </h2>
                   <div className="py-3 flex justify-between border-b border-gray-300">
                     <p className="text-black font-bold">Total Price</p>
-                    <p className="text-black font-bold">
-                      {/* {totalPric} */}
-                    </p>
+                    <p className="text-black font-bold">{/* {totalPric} */}</p>
                   </div>
 
                   <button
                     type="submit"
                     className="font-medium text-black mb-2 border-2 hover:bg-[#D2C5A2] duration-300 py-2 px-4  block text-center mx-auto w-full"
                   >
-                    Submit
+                    Purchase The Courses
                   </button>
                 </div>
               </div>
