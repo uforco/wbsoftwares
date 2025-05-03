@@ -2,6 +2,7 @@ import { useState } from "react";
 // import { IoMdSearch } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import OrderDetails from "../OrderDetails/OrderDetails";
+import { toast } from "react-toastify";
 
 const Search = () => {
   const location = useLocation();
@@ -14,7 +15,7 @@ const Search = () => {
     phone_no: phone ? phone : "",
   });
 
-  const [searchResults, setSearchResults] = useState({formid: "233333"});
+  const [searchResults, setSearchResults] = useState(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -30,7 +31,19 @@ const Search = () => {
       body: JSON.stringify(formObject),
     });
     const data = await response.json();
-    setSearchResults(data);
+    if( data.status_code !== 201){
+      toast.error(data.message, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+    setSearchResults(data.singleCoursePurchaseData);
   };
 
   if (searchResults) {

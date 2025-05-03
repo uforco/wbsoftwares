@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import CardTbody from "../Cart/CardTbody";
 import ViewStudentPhoto from "./ViewStudentPhoto";
+import { toast } from "react-toastify";
 // import uploadStudentPhoto from "../../Utils/uploadStudentPhoto/uploadStudentPhoto";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
-  // let navigate = useNavigate();
+  let navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [fetching, setFetching] = useState(true);
   const [courses, setCourses] = useState([]);
@@ -33,57 +34,73 @@ const Checkout = () => {
 
   const submitHeandler = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    let formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
+    const newData = {
+      course_id: courses[0]?.id,
+      admission_date: new Date().toISOString(),
+      photo: data.ViewStudentPhoto, // e.target.ViewStudentPhoto?.files[0] - png jpeg
+      name: data?.fullName,
+      father_name: data?.parentName,
+      father_phone_no: data?.parentNumber,
+      school_collage_name: data?.school,
+      job_title: data?.jobTitle,
+      email: data?.email,
+      gender: data?.gender,
+      present_address: data?.presentAddress,
+      permanent_address: data?.permanentAddress,
+      nid_no: data?.nid,
+      phone_no: data?.phoneNumber,
+      local_guardian_name: data?.Local_Guardian_Name,
+      local_guardian_phone_no: data?.Local_Guardian_Phone,
+      date_of_birth: data?.dob,
+      blood_group: data?.bloodGroup,
+      course_fee: 12000,
+      course_qty: Number(data?.course_qty),
+      total_course_fee: courses[0]?.regular_price * data?.course_qty,
+      discount_course_fee: Number(courses[0]?.discount_price),
+      sub_total_course_fee: courses[0]?.discount_price * data?.course_qty,
+    };
+    let newformData = new FormData();
+    for (const key in newData) {
+      if (key === "photo" && newData[key] instanceof File) {
+        newformData.append(key, newData[key]);
+      } else {
+        newformData.append(key, newData[key]?.toString() ?? "");
+      }
+    }
+    const response = await fetch("https://itder.com/api/course-purchase", {
+      method: "POST",
+      body: newformData,
+    });
+    const result = await response.json();
 
-    // const studentImage = await uploadStudentPhoto(data?.ViewStudentPhoto);
+    if (result?.status === 201) {
+      toast.success(result?.message, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
 
-    const img = await data?.ViewStudentPhoto?.files[0]
-
-    console.log(img, "data");
-
-
-    // const newData = {
-    //   course_id: courses[0]?.id,
-    //   admission_date: new Date().toISOString(),
-    //   photo: data?.ViewStudentPhoto,
-    //   name: data?.fullName,
-    //   father_name: data?.parentName,
-    //   father_phone_no: data?.parentNumber,
-    //   school_collage_name: data?.school,
-    //   job_title: data?.jobTitle,
-    //   email: data?.email,
-    //   gender: data?.gender,
-    //   present_address: data?.presentAddress,
-    //   permanent_address: data?.permanentAddress,
-    //   nid_no: data?.nid,
-    //   phono_no: data?.phoneNumber,
-    //   local_guardian_name: data?.Local_Guardian_Name,
-    //   local_guardian_phone_no: data?.Local_Guardian_Phone,
-    //   date_of_birth: data?.dob,
-    //   blood_group: data?.bloodGroup,
-    //   course_fee: 12000,
-    //   course_qty: Number(data?.course_qty),
-    //   total_course_fee: courses[0]?.regular_price * data?.course_qty,
-    //   discount_course_fee: Number(courses[0]?.discount_price),
-    //   sub_total_course_fee: courses[0]?.discount_price * data?.course_qty,
-    // };
-
-    // const response = await fetch("https://itder.com/api/course-purchase", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(newData),
-    // });
-    // const result = await response.json();
-
-    // console.log(result, "result");
-
+      const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+      const updatedCartItems = cartItems.filter(
+        (item) => item.id !== courses[0]?.id
+      );
+      localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
+      newformData = new FormData();
+      formData = new FormData();
+      navigate(
+        `/search?phone=${result?.coursePurchaseData?.phone_no}&orderid=${result?.coursePurchaseData?.form_no}`
+      );
+      e.target.reset();
+      return;
+    }
     // navigate(`/search?phone=${"01998769191"}&orderid=${"2346346"}`);
-
-
   };
 
   return (

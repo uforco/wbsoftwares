@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import CardTbody from "./CardTbody";
 
 const Cart = () => {
-    const [ qty, setQty ] = useState(1);
+    const [ deleteRefetch, setDeleteRefetch ] = useState(true);
   const [fetching, setFetching] = useState(true);
   const [courses, setCourses] = useState([]);
 
@@ -26,7 +26,7 @@ const Cart = () => {
       }
     };
     fetchCourses();
-  }, []);
+  }, [deleteRefetch]);
 
 
   return (
@@ -57,7 +57,7 @@ const Cart = () => {
               {!fetching && (
                 <tbody className="overflow-x-auto ">
                   {courses?.map((course) => (
-                  <CardTbody key={course.id} data={course} setQty={setQty} qty={qty} />
+                  <CardTbody key={course.id} data={course} setDeleteRefetch={setDeleteRefetch} />
                 ))}
                 </tbody>
               )}
