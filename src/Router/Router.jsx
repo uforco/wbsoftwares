@@ -26,7 +26,7 @@ const Router = createBrowserRouter([
                 element: <Cart></Cart>
             },
             {
-                path: '/checkout',
+                path: '/cart/checkout',
                 element: <Checkout />
             },
             {
@@ -35,7 +35,7 @@ const Router = createBrowserRouter([
             },
             {
                 path : '/order-details',
-                element : <OrderDetails />
+                element : <OrderDetails data={{formid: "23564"}} />
             },
         ]
     },
